@@ -4,7 +4,8 @@
   "description": "Quepo form signup",
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify -t [ babelify --presets [ react es2015 ] ] src/index.js -o build/app.js && uglifyjs build/app.js --output build/app-min.js"
   },
   "repository": {
     "type": "git",

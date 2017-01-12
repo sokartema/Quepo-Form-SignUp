@@ -2,12 +2,59 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="https://www.quepo.es/lib/bootstrap/dist/css/bootstrap.min.css">
         <style media="screen">
-    
+          input.custom{
+            height: 40px;
+            font-size: 17px;
+          }
+          input.custom:focus {
+            outline: none !important;
+            border:1px solid #00C5B9;
+            box-shadow: none;
+          }
+
+          form.custom{
+            margin-top: 20px;
+          }
+          button.custom{
+            height: 40px;
+            font-size: 17px;
+            width: 100%;
+            font-weight: 600;
+            background-color: #F05768;
+            color: white;
+          }
+
+          button.custom:hover{
+
+            font-weight: 600;
+            background-color: #b04450;
+            color: white;
+          }
+
+          button.custom:active{
+
+            font-weight: 600;
+            background-color: #b04450;
+            color: white !important;
+          }
+
+          button.custom:focus{
+
+            font-weight: 600;
+            background-color: #F05768;
+            color: white !important;;
+          }
+
+
+
         </style>
     </head>
     <body>
-        <div id="react-app"></div>
+        <div id="react-form"></div>
+        <script src="https://www.quepo.es/lib/jquery/dist/jquery.min.js"></script>
         <script src="build/app.js"></script>
+        <script src="https://www.quepo.es/lib/bootstrap/dist/js/bootstrap.min.js"></script>
     </body>
 </html>
