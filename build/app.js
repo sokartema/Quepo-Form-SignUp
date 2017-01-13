@@ -20480,6 +20480,54 @@ module.exports = traverseAllChildren;
 module.exports = require('./lib/React');
 
 },{"./lib/React":155}],178:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var React = require('react');
+
+var ErrorInputMessage = function (_React$Component) {
+  _inherits(ErrorInputMessage, _React$Component);
+
+  function ErrorInputMessage(props) {
+    _classCallCheck(this, ErrorInputMessage);
+
+    return _possibleConstructorReturn(this, (ErrorInputMessage.__proto__ || Object.getPrototypeOf(ErrorInputMessage)).call(this, props));
+  }
+
+  _createClass(ErrorInputMessage, [{
+    key: "render",
+    value: function render() {
+
+      if (this.props.message === "") {
+        return null;
+      }
+      return React.createElement(
+        "p",
+        { className: "customErrorMessage" },
+        this.props.message
+      );
+    }
+  }]);
+
+  return ErrorInputMessage;
+}(React.Component);
+
+ErrorInputMessage.PropTypes = {
+
+  message: React.PropTypes.string.isRequired
+
+};
+
+module.exports = ErrorInputMessage;
+
+},{"react":177}],179:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -20498,8 +20546,8 @@ var newRegister = {
 
 ReactDOM.render(React.createElement(RegisterView, { newRegister: newRegister }), document.getElementById('react-form'));
 
-},{"./register-view":180,"react":177,"react-dom":26}],179:[function(require,module,exports){
-"use strict";
+},{"./register-view":181,"react":177,"react-dom":26}],180:[function(require,module,exports){
+'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -20511,6 +20559,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var React = require('react');
 
+var ErrorInputMessage = require('./error-input-message');
+
 var RegisterForm = function (_React$Component) {
   _inherits(RegisterForm, _React$Component);
 
@@ -20520,8 +20570,10 @@ var RegisterForm = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (RegisterForm.__proto__ || Object.getPrototypeOf(RegisterForm)).call(this, props));
 
     _this.newObject = {};
+    _this.tempObject = {};
 
     Object.assign(_this.newObject, props.newRegister, { hasError: { email: { error: false, message: "" }, name: { error: false, message: "" }, surname: { error: false, message: "" }, password: { error: false, message: "" }, confirmPassword: { error: false, message: "" } } });
+    Object.assign(_this.tempObject, props.newRegister);
 
     _this.state = _this.newObject;
 
@@ -20532,19 +20584,20 @@ var RegisterForm = function (_React$Component) {
   }
 
   _createClass(RegisterForm, [{
-    key: "onSubmit",
+    key: 'onSubmit',
     value: function onSubmit(e) {
       e.preventDefault();
       console.log(this.state);
       this.setState(this.newObject);
     }
   }, {
-    key: "onChange",
+    key: 'onChange',
     value: function onChange(e, which) {
 
       var obj = {};
       obj[which] = e.target.value;
       this.setState(obj);
+      Object.assign(this.tempObject, obj);
 
       switch (which) {
         case 'email':
@@ -20566,127 +20619,287 @@ var RegisterForm = function (_React$Component) {
       }
     }
   }, {
-    key: "emailHasError",
+    key: 'emailHasError',
     value: function emailHasError() {
 
-      if (!this.isEmail(this.state.email)) {
+      if (!this.isEmail(this.tempObject.email) && this.tempObject.email.length > 0) {
 
-        this.setState({ hasError: { email: { error: true, message: "El email introducido no es valido" } } });
+        this.setState(function (prevState, props) {
+
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { email: { error: true, message: "El email introducido no es valido" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
+      } else if (this.tempObject.email.length > 32) {
+
+        this.setState(function (prevState, props) {
+
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { email: { error: true, message: "El email introducido es demasiado largo" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
+      } else {
+
+        this.setState(function (prevState, props) {
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { email: { error: false, message: "" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
       }
-
-      if (this.state.email.length > 32) {
-
-        this.setState({ hasError: { email: { error: true, message: "El email introducido es demasiado largo" } } });
-      }
-
-      console.log(this.state);
     }
   }, {
-    key: "nameHasError",
+    key: 'nameHasError',
     value: function nameHasError() {
 
-      if (this.state.name.length > 16) {
+      if (this.tempObject.name.length > 16) {
 
-        this.setState({ hasError: { name: { error: true, message: "El nombre introducido es demasiado largo" } } });
+        this.setState(function (prevState, props) {
+
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { name: { error: true, message: "El nombre introducido es demasiado largo" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
+      } else {
+
+        this.setState(function (prevState, props) {
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { name: { error: false, message: "" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
       }
-
-      console.log(this.state);
     }
   }, {
-    key: "surnameHasError",
+    key: 'surnameHasError',
     value: function surnameHasError() {
 
-      if (this.state.surname.length > 32) {
+      if (this.tempObject.surname.length > 32) {
 
-        this.setState({ hasError: { surname: { error: true, message: "El apellido introducido es demasiado largo" } } });
+        this.setState(function (prevState, props) {
+
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { surname: { error: true, message: "El apellido introducido es demasiado largo" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
+      } else {
+
+        this.setState(function (prevState, props) {
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { surname: { error: false, message: "" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
       }
-
-      console.log(this.state);
     }
   }, {
-    key: "passwordHasError",
+    key: 'passwordHasError',
     value: function passwordHasError() {
 
-      if (this.state.password.length > 16) {
+      if (this.tempObject.password.length > 16) {
 
-        this.setState({ hasError: { password: { error: true, message: "La contraseña introducida es demasiado larga" } } });
+        this.setState(function (prevState, props) {
+
+          var obj = {};
+          var hasError = {};
+          Object.assign(hasError, prevState.hasError, { password: { error: true, message: "La contraseña introducida es demasiado larga" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
+      } else if (this.tempObject.confirmPassword !== this.tempObject.password && this.tempObject.confirmPassword.length > 0) {
+
+        this.setState(function (prevState, props) {
+
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { confirmPassword: { error: true, message: "Las contraseñas no coinciden" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
+      } else if (this.tempObject.confirmPassword === this.tempObject.password) {
+
+        this.setState(function (prevState, props) {
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { confirmPassword: { error: false, message: "" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
+      } else {
+
+        this.setState(function (prevState, props) {
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { password: { error: false, message: "" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
       }
-
-      console.log(this.state);
     }
   }, {
-    key: "confirmPasswordHasError",
+    key: 'confirmPasswordHasError',
     value: function confirmPasswordHasError() {
 
-      if (this.state.confirmPassword.length > 16) {
+      if (this.tempObject.confirmPassword.length > 16) {
 
-        this.setState({ hasError: { confirmPassword: { error: true, message: "La contraseña introducida es demasiado larga" } } });
+        this.setState(function (prevState, props) {
+
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { confirmPassword: { error: true, message: "La contraseña introducida es demasiado larga" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
+      } else if (this.tempObject.confirmPassword !== this.tempObject.password && this.tempObject.confirmPassword.length > 0) {
+
+        this.setState(function (prevState, props) {
+
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { confirmPassword: { error: true, message: "Las contraseñas no coinciden" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
+      } else if (this.tempObject.confirmPassword === this.tempObject.password) {
+
+        this.setState(function (prevState, props) {
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { confirmPassword: { error: false, message: "" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
+      } else {
+
+        this.setState(function (prevState, props) {
+          var hasError = {};
+          var obj = {};
+          Object.assign(hasError, prevState.hasError, { confirmPassword: { error: false, message: "" } });
+          Object.assign(obj, prevState, { hasError: hasError });
+          return obj;
+        });
       }
-
-      if (this.state.confirmPassword !== this.state.password) {
-
-        this.setState({ hasError: { confirmPassword: { error: true, message: "Las contraseñas no coinciden" } } });
-      }
-
-      console.log(this.state);
     }
   }, {
-    key: "isEmail",
+    key: 'isEmail',
     value: function isEmail(email) {
 
       var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
       return regex.test(email);
     }
   }, {
-    key: "render",
+    key: 'render',
     value: function render() {
       var _this2 = this;
 
+      var emailErrorMessage = null;
+      var nameErrorMessage = null;
+      var surnameErrorMessage = null;
+      var passwordErrorMessage = null;
+      var confirmPasswordErrorMessage = null;
+
+      var email = React.createElement('input', { type: 'email', className: 'form-control custom', placeholder: 'Email', value: this.state.email, onChange: function onChange(e) {
+          _this2.onChange(e, 'email');
+        }, required: true });
+      var name = React.createElement('input', { type: 'text', className: 'form-control custom', placeholder: 'Nombre', value: this.state.name, onChange: function onChange(e) {
+          _this2.onChange(e, 'name');
+        }, required: true });
+      var surname = React.createElement('input', { type: 'text', className: 'form-control custom', placeholder: 'Apellidos', value: this.state.surname, onChange: function onChange(e) {
+          _this2.onChange(e, 'surname');
+        }, required: true });
+      var password = React.createElement('input', { type: 'password', className: 'form-control custom', placeholder: 'Contrase\xF1a', value: this.state.password, onChange: function onChange(e) {
+          _this2.onChange(e, 'password');
+        }, required: true });
+      var confirmPassword = React.createElement('input', { type: 'password', className: 'form-control custom', placeholder: 'Confirmar Contrase\xF1a', value: this.state.confirmPassword, onChange: function onChange(e) {
+          _this2.onChange(e, 'confirmPassword');
+        }, required: true });
+
+      if (this.state.hasError.email.error) {
+        emailErrorMessage = React.createElement(ErrorInputMessage, { message: this.state.hasError.email.message });
+        email = React.createElement('input', { type: 'email', className: 'form-control customError', placeholder: 'Email', value: this.state.email, onChange: function onChange(e) {
+            _this2.onChange(e, 'email');
+          }, required: true });
+      }
+
+      if (this.state.hasError.name.error) {
+        nameErrorMessage = React.createElement(ErrorInputMessage, { message: this.state.hasError.name.message });
+        name = React.createElement('input', { type: 'text', className: 'form-control customError', placeholder: 'Nombre', value: this.state.name, onChange: function onChange(e) {
+            _this2.onChange(e, 'name');
+          }, required: true });
+      }
+
+      if (this.state.hasError.surname.error) {
+        surnameErrorMessage = React.createElement(ErrorInputMessage, { message: this.state.hasError.surname.message });
+        surname = React.createElement('input', { type: 'text', className: 'form-control customError', placeholder: 'Apellidos', value: this.state.surname, onChange: function onChange(e) {
+            _this2.onChange(e, 'surname');
+          }, required: true });
+      }
+
+      if (this.state.hasError.password.error) {
+        passwordErrorMessage = React.createElement(ErrorInputMessage, { message: this.state.hasError.password.message });
+        password = React.createElement('input', { type: 'password', className: 'form-control customError', placeholder: 'Contrase\xF1a', value: this.state.password, onChange: function onChange(e) {
+            _this2.onChange(e, 'password');
+          }, required: true });
+      }
+
+      if (this.state.hasError.confirmPassword.error) {
+        confirmPasswordErrorMessage = React.createElement(ErrorInputMessage, { message: this.state.hasError.confirmPassword.message });
+        confirmPassword = React.createElement('input', { type: 'password', className: 'form-control customError', placeholder: 'Confirmar Contrase\xF1a', value: this.state.confirmPassword, onChange: function onChange(e) {
+            _this2.onChange(e, 'confirmPassword');
+          }, required: true });
+      }
+
       return React.createElement(
-        "form",
-        { className: "form-horizontal custom", onSubmit: this.onSubmit },
+        'form',
+        { className: 'form-horizontal custom', onSubmit: this.onSubmit },
         React.createElement(
-          "div",
-          { className: "form-group col-md-10" },
-          React.createElement("input", { type: "email", className: "form-control custom", placeholder: "Email", value: this.state.email, onChange: function onChange(e) {
-              _this2.onChange(e, 'email');
-            }, required: true })
+          'div',
+          { className: 'form-group col-md-10' },
+          email,
+          emailErrorMessage
         ),
         React.createElement(
-          "div",
-          { className: "form-group col-md-10" },
-          React.createElement("input", { type: "text", className: "form-control custom", placeholder: "Nombre", value: this.state.name, onChange: function onChange(e) {
-              _this2.onChange(e, 'name');
-            }, required: true })
+          'div',
+          { className: 'form-group col-md-10' },
+          name,
+          nameErrorMessage
         ),
         React.createElement(
-          "div",
-          { className: "form-group col-md-10" },
-          React.createElement("input", { type: "text", className: "form-control custom", placeholder: "Apellidos", value: this.state.surname, onChange: function onChange(e) {
-              _this2.onChange(e, 'surname');
-            }, required: true })
+          'div',
+          { className: 'form-group col-md-10' },
+          surname,
+          surnameErrorMessage
         ),
         React.createElement(
-          "div",
-          { className: "form-group col-md-10" },
-          React.createElement("input", { type: "password", className: "form-control custom", placeholder: "Contrase\xF1a", value: this.state.password, onChange: function onChange(e) {
-              _this2.onChange(e, 'password');
-            }, required: true })
+          'div',
+          { className: 'form-group col-md-10' },
+          password,
+          passwordErrorMessage
         ),
         React.createElement(
-          "div",
-          { className: "form-group col-md-10" },
-          React.createElement("input", { type: "password", className: "form-control custom", placeholder: "Confirmar Contrase\xF1a", value: this.state.confirmPassword, onChange: function onChange(e) {
-              _this2.onChange(e, 'confirmPassword');
-            }, required: true })
+          'div',
+          { className: 'form-group col-md-10' },
+          confirmPassword,
+          confirmPasswordErrorMessage
         ),
         React.createElement(
-          "div",
-          { className: "form-group col-md-10" },
+          'div',
+          { className: 'form-group col-md-10' },
           React.createElement(
-            "button",
-            { className: "btn custom", type: "submit" },
-            "Crear una cuenta"
+            'button',
+            { className: 'btn custom', type: 'submit' },
+            'Crear una cuenta'
           )
         )
       );
@@ -20703,7 +20916,7 @@ RegisterForm.PropTypes = {
 
 module.exports = RegisterForm;
 
-},{"react":177}],180:[function(require,module,exports){
+},{"./error-input-message":178,"react":177}],181:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -20750,4 +20963,4 @@ RegisterView.PropTypes = {
 
 module.exports = RegisterView;
 
-},{"./register-form":179,"react":177}]},{},[178]);
+},{"./register-form":180,"react":177}]},{},[179]);
