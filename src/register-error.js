@@ -14,7 +14,7 @@ class RegisterError extends React.Component{
     }
     return(
 
-      <div className="alert alert-danger">{this.props.message}</div>
+      <div className="alert alert-danger col-md-10">{this.props.message}</div>
     )
   }
 

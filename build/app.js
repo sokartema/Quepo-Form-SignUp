@@ -20577,7 +20577,7 @@ var RegisterError = function (_React$Component) {
       }
       return React.createElement(
         "div",
-        { className: "alert alert-danger" },
+        { className: "alert alert-danger col-md-10" },
         this.props.message
       );
     }
@@ -20635,8 +20635,6 @@ var RegisterForm = function (_React$Component) {
     key: 'onSubmit',
     value: function onSubmit(e) {
       e.preventDefault();
-      console.log(this.state);
-      console.log(this.registerHasError());
 
       if (!this.registerHasError()) {
 
