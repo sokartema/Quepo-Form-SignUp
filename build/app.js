@@ -20546,7 +20546,55 @@ var newRegister = {
 
 ReactDOM.render(React.createElement(RegisterView, { newRegister: newRegister }), document.getElementById('react-form'));
 
-},{"./register-view":181,"react":177,"react-dom":26}],180:[function(require,module,exports){
+},{"./register-view":182,"react":177,"react-dom":26}],180:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var React = require('react');
+
+var RegisterError = function (_React$Component) {
+  _inherits(RegisterError, _React$Component);
+
+  function RegisterError(props) {
+    _classCallCheck(this, RegisterError);
+
+    return _possibleConstructorReturn(this, (RegisterError.__proto__ || Object.getPrototypeOf(RegisterError)).call(this, props));
+  }
+
+  _createClass(RegisterError, [{
+    key: "render",
+    value: function render() {
+
+      if (this.props.message === "") {
+        return null;
+      }
+      return React.createElement(
+        "div",
+        { className: "alert alert-danger" },
+        this.props.message
+      );
+    }
+  }]);
+
+  return RegisterError;
+}(React.Component);
+
+RegisterError.PropTypes = {
+
+  message: React.PropTypes.string.isRequired
+
+};
+
+module.exports = RegisterError;
+
+},{"react":177}],181:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -20588,7 +20636,14 @@ var RegisterForm = function (_React$Component) {
     value: function onSubmit(e) {
       e.preventDefault();
       console.log(this.state);
-      this.setState(this.newObject);
+      console.log(this.registerHasError());
+
+      if (!this.registerHasError()) {
+
+        this.props.onNewSubmit(this.state);
+      }
+
+      //this.setState(this.newObject);
     }
   }, {
     key: 'onChange',
@@ -20617,6 +20672,16 @@ var RegisterForm = function (_React$Component) {
           break;
 
       }
+    }
+  }, {
+    key: 'registerHasError',
+    value: function registerHasError() {
+
+      if (this.state.hasError.email.error || this.state.hasError.name.error || this.state.hasError.surname.error || this.state.hasError.password.error || this.state.hasError.confirmPassword.error) {
+        return true;
+      }
+
+      return false;
     }
   }, {
     key: 'emailHasError',
@@ -20911,12 +20976,13 @@ var RegisterForm = function (_React$Component) {
 
 RegisterForm.PropTypes = {
 
-  newRegister: React.PropTypes.object.isRequired
+  newRegister: React.PropTypes.object.isRequired,
+  onNewSubmit: React.PropTypes.func.isRequired
 };
 
 module.exports = RegisterForm;
 
-},{"./error-input-message":178,"react":177}],181:[function(require,module,exports){
+},{"./error-input-message":178,"react":177}],182:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -20930,6 +20996,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var React = require('react');
 
 var RegisterForm = require('./register-form');
+var RegisterError = require('./register-error');
 
 var RegisterView = function (_React$Component) {
   _inherits(RegisterView, _React$Component);
@@ -20937,17 +21004,56 @@ var RegisterView = function (_React$Component) {
   function RegisterView(props) {
     _classCallCheck(this, RegisterView);
 
-    return _possibleConstructorReturn(this, (RegisterView.__proto__ || Object.getPrototypeOf(RegisterView)).call(this, props));
+    var _this = _possibleConstructorReturn(this, (RegisterView.__proto__ || Object.getPrototypeOf(RegisterView)).call(this, props));
+
+    _this.state = { ErrorMessage: "" };
+    _this.onNewSubmit = _this.onNewSubmit.bind(_this);
+
+    return _this;
   }
 
   _createClass(RegisterView, [{
+    key: 'onNewSubmit',
+    value: function onNewSubmit(state) {
+      var obj = {};
+      obj.email = state.email;
+      obj.name = state.name;
+      obj.surname = state.surname;
+      obj.password = state.password;
+
+      var self = this;
+
+      $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: "https://www.quepo.es/register",
+        data: obj,
+        success: function success(e) {
+          if (e.id === 2) {
+
+            self.setState({ ErrorMessage: "Este usuario ya ha sido registrado" });
+          } else if (e.id === 3) {
+
+            self.setState({ ErrorMessage: "El servicio de registro no esta disponible ahora mismo" });
+          } else if (e.id === 0) {
+            window.location = 'https://www.quepo.es/registerComplete';
+          }
+        },
+        error: function error(e) {
+
+          self.setState({ ErrorMessage: "Error del servidor intentelo mas tarde" });
+        }
+      });
+    }
+  }, {
     key: 'render',
     value: function render() {
 
       return React.createElement(
         'div',
         { className: 'col-md-4' },
-        React.createElement(RegisterForm, { newRegister: this.props.newRegister })
+        React.createElement(RegisterError, { message: this.state.ErrorMessage }),
+        React.createElement(RegisterForm, { newRegister: this.props.newRegister, onNewSubmit: this.onNewSubmit })
       );
     }
   }]);
@@ -20963,4 +21069,4 @@ RegisterView.PropTypes = {
 
 module.exports = RegisterView;
 
-},{"./register-form":180,"react":177}]},{},[179]);
+},{"./register-error":180,"./register-form":181,"react":177}]},{},[179]);

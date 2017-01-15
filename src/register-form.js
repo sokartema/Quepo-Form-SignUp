@@ -23,8 +23,15 @@ class RegisterForm extends React.Component{
   onSubmit(e){
     e.preventDefault();
     console.log(this.state);
-    this.setState(this.newObject);
+    console.log(this.registerHasError());
 
+    if(!this.registerHasError()){
+
+      this.props.onNewSubmit(this.state);
+
+    }
+
+    //this.setState(this.newObject);
   }
 
   onChange(e, which){
@@ -53,6 +60,16 @@ class RegisterForm extends React.Component{
 
     }
 
+
+  }
+
+  registerHasError(){
+
+    if(this.state.hasError.email.error || this.state.hasError.name.error || this.state.hasError.surname.error || this.state.hasError.password.error || this.state.hasError.confirmPassword.error ){
+      return true;
+    }
+
+    return false;
 
   }
 
@@ -331,7 +348,8 @@ class RegisterForm extends React.Component{
 
 RegisterForm.PropTypes = {
 
-  newRegister: React.PropTypes.object.isRequired
+  newRegister: React.PropTypes.object.isRequired,
+  onNewSubmit: React.PropTypes.func.isRequired
 }
 
 module.exports = RegisterForm;
